@@ -9,7 +9,7 @@ use function Differ\getDiff;
 function run()
 {
     $args = (new Handler())->handle(getDoc());
-    echo getDiff($args['<firstFile>'], $args['<secondFile>']);
+    echo getDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
 }
 
 function getDoc()
