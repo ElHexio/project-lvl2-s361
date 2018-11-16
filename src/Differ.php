@@ -3,17 +3,9 @@
 namespace Differ;
 
 use function Differ\FileParserFactory\getParser;
+use function Differ\DiffBuilderFactory\getDiffBuilder;
 
-const LINE_STATE_ADDED = 'added';
-const LINE_STATE_REMOVED = 'removed';
-const LINE_STATE_UNCHANGED = 'unchanged';
-const LINE_STATE_FORMAT_MAP = [
-    LINE_STATE_ADDED => '+',
-    LINE_STATE_REMOVED => '-',
-    LINE_STATE_UNCHANGED => ' ',
-];
-
-function getDiff(string $firstFile, string $secondFile): string
+function getDiff(string $firstFile, string $secondFile, string $format = 'pretty'): string
 {
     $firstFileExtension = pathinfo($firstFile, PATHINFO_EXTENSION);
     if ($firstFileExtension !== pathinfo($secondFile, PATHINFO_EXTENSION)) {
@@ -23,98 +15,43 @@ function getDiff(string $firstFile, string $secondFile): string
     $parse = getParser($firstFileExtension);
     $before = $parse(file_get_contents($firstFile));
     $after = $parse(file_get_contents($secondFile));
-    $ast = buildAST($before, $after);
-    $diff = buildDiffFromAST($ast);
+    $ast = buildDiffAST($before, $after);
+
+    $build = getDiffBuilder($format);
+    $diff = $build($ast);
 
     return $diff;
 }
 
-function buildAST(array $before, array $after)
+function buildDiffAST(array $before, array $after)
 {
     $allPropertiesNames = array_unique(array_merge(array_keys($before), array_keys($after)));
     $ast = array_reduce($allPropertiesNames, function ($acc, $name) use ($before, $after) {
-        [$beforeValue, $afterValue] = getNormalizedValues($name, $before, $after);
+        $beforeValue = array_key_exists($name, $before) ? $before[$name] : null;
+        $afterValue = array_key_exists($name, $after) ? $after[$name] : null;
 
-        if ($beforeValue === $afterValue) {
-            $acc[] = prepareASTNode(LINE_STATE_UNCHANGED, $name, $beforeValue, $afterValue);
-        } elseif ($afterValue === null || $beforeValue === null) {
-            $state = $beforeValue === null ? LINE_STATE_ADDED : LINE_STATE_REMOVED;
-            $value = $beforeValue ?? $afterValue;
-            $acc[] = prepareASTNode($state, $name, $value, $value);
+        $isPropAdded = !array_key_exists($name, $before);
+        $isPropRemoved = !array_key_exists($name, $after);
+        if ($isPropAdded) {
+            $acc[] = ['state' => 'added', 'name' => $name, 'before' => null,
+                      'after' => is_array($afterValue) ? buildDiffAST($afterValue, $afterValue) : $afterValue];
+        } elseif ($isPropRemoved) {
+            $acc[] = ['state' => 'removed', 'name' => $name,
+                      'before' => is_array($beforeValue) ? buildDiffAST($beforeValue, $beforeValue) : $beforeValue,
+                      'after' => null];
+        } elseif (is_array($beforeValue) && is_array($afterValue)) {
+            $acc[] = ['state' => 'unchanged', 'name' => $name,
+                      'before' => buildDiffAST($beforeValue, $afterValue), 'after' => null];
+        } elseif ($beforeValue === $afterValue) {
+            $acc[] = ['state' => 'unchanged', 'name' => $name,
+                      'before' => $beforeValue, 'after' => $afterValue];
         } else {
-            if (is_array($before[$name]) && is_array($after[$name])) {
-                $acc[] = prepareASTNode(LINE_STATE_UNCHANGED, $name, $beforeValue, $afterValue);
-            } elseif (is_array($before[$name])) {
-                $acc[] = prepareASTNode(LINE_STATE_ADDED, $name, null, $afterValue);
-                $acc[] = prepareASTNode(LINE_STATE_REMOVED, $name, $beforeValue, $beforeValue);
-            } elseif (is_array($after[$name])) {
-                $acc[] = prepareASTNode(LINE_STATE_ADDED, $name, $afterValue, $afterValue);
-                $acc[] = prepareASTNode(LINE_STATE_REMOVED, $name, $beforeValue, null);
-            } else {
-                $acc[] = prepareASTNode(LINE_STATE_ADDED, $name, null, $afterValue);
-                $acc[] = prepareASTNode(LINE_STATE_REMOVED, $name, $beforeValue, null);
-            }
+            $acc[] = ['state' => 'changed', 'name' => $name,
+                      'before' => is_array($beforeValue) ? buildDiffAST($beforeValue, $beforeValue) : $beforeValue,
+                      'after' => is_array($afterValue) ? buildDiffAST($afterValue, $afterValue) : $afterValue];
         }
-
         return $acc;
     }, []);
 
     return $ast;
-}
-
-function prepareASTNode($state, $name, $before, $after)
-{
-    $value = $before;
-    if (is_array($before) && is_array($after)) {
-        $value = buildAST($before, $after);
-    } elseif ($before === null) {
-        $value = $after;
-    }
-
-    return ['state' => $state, 'name' => $name, 'value' => $value];
-}
-
-function getNormalizedValues($name, $before, $after)
-{
-    $isKeyRemoved = !array_key_exists($name, $after);
-    $isKeyAdded = !array_key_exists($name, $before);
-    if ($isKeyRemoved) {
-        $beforeValue = is_array($before[$name]) ? $before[$name] : stringifyValue($before[$name]);
-        $afterValue = null;
-    } elseif ($isKeyAdded) {
-        $beforeValue = null;
-        $afterValue = is_array($after[$name]) ? $after[$name] : stringifyValue($after[$name]);
-    } else {
-        $afterValue = is_array($after[$name]) ? $after[$name] : stringifyValue($after[$name]);
-        $beforeValue = is_array($before[$name]) ? $before[$name] : stringifyValue($before[$name]);
-    }
-
-    return [$beforeValue, $afterValue];
-}
-
-function stringifyValue($value): string
-{
-    $stringValue = $value;
-    if (is_bool($value)) {
-        $stringValue = $value ? 'true' : 'false';
-    } elseif (is_null($value)) {
-        $stringValue = 'null';
-    }
-
-    return $stringValue;
-}
-
-function buildDiffFromAST(array $ast, int $level = 0)
-{
-    $offset = str_pad('', $level * 4, ' ');
-    $diffLines = array_reduce($ast, function ($acc, $item) use ($level, $offset) {
-        $format = LINE_STATE_FORMAT_MAP[$item['state']];
-        $value = is_array($item['value']) ? buildDiffFromAST($item['value'], $level + 1) : $item['value'];
-        $acc[] = sprintf('%s  %s %s: %s', $offset, $format, $item['name'], $value);
-        return $acc;
-    }, ['{']);
-
-    $diffLines[] = sprintf('%s}', $offset);
-
-    return implode(PHP_EOL, $diffLines);
 }
