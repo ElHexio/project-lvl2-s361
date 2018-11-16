@@ -7,11 +7,14 @@
 ### Installation
 [![asciicast](https://asciinema.org/a/yej0r1P5cPvrehOK6Ht4oqcRb.svg)](https://asciinema.org/a/yej0r1P5cPvrehOK6Ht4oqcRb)
 
-### Flat JSON diff example
+### Flat JSON pretty diff example
 [![asciicast](https://asciinema.org/a/ZWbeAQCKcbrk8k9crGS8EnPzc.svg)](https://asciinema.org/a/ZWbeAQCKcbrk8k9crGS8EnPzc)
 
-### Flat YAML diff example
+### Flat YAML prety diff example
 [![asciicast](https://asciinema.org/a/ELCqCmPHg6xjbfAulCfCbKygE.svg)](https://asciinema.org/a/ELCqCmPHg6xjbfAulCfCbKygE)
 
-### Nested JSON diff example
+### Nested JSON pretty diff example
 [![asciicast](https://asciinema.org/a/WPNtiJyeqy991QCzy2bB4LKUk.svg)](https://asciinema.org/a/WPNtiJyeqy991QCzy2bB4LKUk)
+
+### Nested JSON plain diff example
+[![asciicast](https://asciinema.org/a/g2OMNONprG93IpW1wmStMZO0E.svg)](https://asciinema.org/a/g2OMNONprG93IpW1wmStMZO0E)
