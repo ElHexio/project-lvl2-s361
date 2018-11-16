@@ -10,6 +10,7 @@ function run()
 {
     $args = (new Handler())->handle(getDoc());
     echo getDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
+    echo PHP_EOL;
 }
 
 function getDoc()
