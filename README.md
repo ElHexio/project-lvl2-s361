@@ -12,3 +12,6 @@
 
 ### Flat YAML diff example
 [![asciicast](https://asciinema.org/a/ELCqCmPHg6xjbfAulCfCbKygE.svg)](https://asciinema.org/a/ELCqCmPHg6xjbfAulCfCbKygE)
+
+### Nested JSON diff example
+[![asciicast](https://asciinema.org/a/WPNtiJyeqy991QCzy2bB4LKUk.svg)](https://asciinema.org/a/WPNtiJyeqy991QCzy2bB4LKUk)
