@@ -42,7 +42,7 @@ function buildAST(array $before, array $after)
             $value = $beforeValue ?? $afterValue;
             $acc[] = prepareASTNode($state, $name, $value, $value);
         } else {
-            if (is_array($before[$name]) && is_array($after[$name])) {
+            if (is_array($beforeValue) && is_array($afterValue)) {
                 $acc[] = prepareASTNode(LINE_STATE_UNCHANGED, $name, $beforeValue, $afterValue);
             } elseif (is_array($before[$name])) {
                 $acc[] = prepareASTNode(LINE_STATE_ADDED, $name, null, $afterValue);
@@ -117,4 +117,31 @@ function buildDiffFromAST(array $ast, int $level = 0)
     $diffLines[] = sprintf('%s}', $offset);
 
     return implode(PHP_EOL, $diffLines);
+}
+
+function buildDiffFromNewAST(array $ast, int $level = 0)
+{
+    $offset = str_pad('', $level * 4, ' ');
+    $diff = ['{'];
+    foreach ($ast as $node) {
+        if ($node['state'] === 'added') {
+            $value = is_array($node['after']) ? buildDiffFromNewAST($node['after'], $level + 1) : $node['after'];
+            $diff[] = sprintf('%s  %s %s: %s', $offset, '+', $node['name'], $value);
+        } elseif ($node['state'] === 'removed') {
+            $value = is_array($node['before']) ? buildDiffFromNewAST($node['before'], $level + 1) : $node['before'];
+            $diff[] = sprintf('%s  %s %s: %s', $offset, '-', $node['name'], $value);
+        } elseif ($node['state'] === 'unchanged') {
+            $value = $node['before'];
+            $value = is_array($node['before']) ? buildDiffFromNewAST($node['before'], $level + 1) : $node['before'];
+            $diff[] = sprintf('%s  %s %s: %s', $offset, ' ', $node['name'], $value);
+        } elseif ($node['state'] === 'changed') {
+            $value = is_array($node['after']) ? buildDiffFromNewAST($node['after'], $level + 1) : $node['after'];
+            $diff[] = sprintf('%s  %s %s: %s', $offset, '+', $node['name'], $value);
+            $value = is_array($node['before']) ? buildDiffFromNewAST($node['before'], $level + 1) : $node['before'];
+            $diff[] = sprintf('%s  %s %s: %s', $offset, '-', $node['name'], $value);
+        }
+    }
+    $diff[] = sprintf('%s}', $offset);
+
+    return implode(PHP_EOL, $diff);
 }
