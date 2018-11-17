@@ -4,7 +4,7 @@ namespace Differ\FileParserFactory;
 
 use Symfony\Component\Yaml\Yaml;
 
-function getParser($extension): callable
+function getParser($extension): \Closure
 {
     switch ($extension) {
         case 'yaml':

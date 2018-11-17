@@ -15,6 +15,7 @@
         "files": [
             "src/App.php",
             "src/Differ.php",
+            "src/DiffASTBuilder.php",
             "src/FileParserFactory.php",
             "src/DiffBuilderFactory.php"
         ],
