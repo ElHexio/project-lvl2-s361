@@ -8,10 +8,6 @@ install:
 
 script: make lint test_coverage
 
-env:
-  global:
-    - CC_TEST_REPORTER_ID=9e6246672a75618fd7ec0b02eb06787579265a2854633443d8b6474a7dc624fa
-
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
