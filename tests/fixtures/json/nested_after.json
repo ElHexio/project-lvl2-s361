@@ -7,12 +7,10 @@
             "key5": "value5"
         }
     },
-
     "group1": {
         "foo": "bar",
         "baz": "bars"
     },
-
     "group3": {
         "fee": "100500"
     }
