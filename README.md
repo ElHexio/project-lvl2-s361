@@ -18,3 +18,6 @@
 
 ### Nested JSON plain diff example
 [![asciicast](https://asciinema.org/a/g2OMNONprG93IpW1wmStMZO0E.svg)](https://asciinema.org/a/g2OMNONprG93IpW1wmStMZO0E)
+
+### Nested JSON json output diff example
+[![asciicast](https://asciinema.org/a/PQKYrk1B7bDXWyDgLxW69CY7Z.svg)](https://asciinema.org/a/PQKYrk1B7bDXWyDgLxW69CY7Z)
