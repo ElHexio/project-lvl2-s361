@@ -17,7 +17,9 @@
             "src/Differ.php",
             "src/DiffASTBuilder.php",
             "src/FileParserFactory.php",
-            "src/DiffBuilderFactory.php"
+            "src/DiffBuilderFactory.php",
+            "src/Formatters/PlainFormatter.php",
+            "src/Formatters/PrettyFormatter.php"
         ],
         "psr-4": {
             "App\\Tests\\": "tests"

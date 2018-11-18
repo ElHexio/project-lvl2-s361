@@ -9,13 +9,13 @@ function buildDiffAST(array $before, array $after)
         $beforeValue = isset($before[$name]) ? $before[$name] : null;
         $afterValue = isset($after[$name]) ? $after[$name] : null;
 
-        $isPropAdded = !array_key_exists($name, $before);
-        $isPropRemoved = !array_key_exists($name, $after);
+        $wasAdded = !array_key_exists($name, $before);
+        $wasRemoved = !array_key_exists($name, $after);
         $isSameNodeBeforeAndAfterHasChildren = is_array($beforeValue) && is_array($afterValue);
 
         $state = 'changed';
-        if ($isPropAdded || $isPropRemoved) {
-            $state = $isPropAdded ? 'added' : 'removed';
+        if ($wasAdded || $wasRemoved) {
+            $state = $wasAdded ? 'added' : 'removed';
         } elseif ($beforeValue === $afterValue || $isSameNodeBeforeAndAfterHasChildren) {
             $state = 'unchanged';
         }
