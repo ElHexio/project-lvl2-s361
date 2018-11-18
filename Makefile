@@ -6,3 +6,6 @@ lint:
 
 test:
 	composer run-script test
+
+test_coverage:
+	composer run-script test_coverage

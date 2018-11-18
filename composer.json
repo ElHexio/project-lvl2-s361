@@ -35,6 +35,7 @@
     },
     "scripts": {
         "phpcs": "phpcs",
-        "test": "vendor/bin/phpunit tests --bootstrap vendor/autoload.php"
+        "test": "vendor/bin/phpunit tests --bootstrap vendor/autoload.php",
+        "test_coverage": "vendor/bin/phpunit tests --bootstrap vendor/autoload.php --whitelist=./src/ --coverage-clover=./clover.xml"
     }
 }
