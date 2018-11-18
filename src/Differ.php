@@ -18,8 +18,8 @@ function getDiff(string $firstFile, string $secondFile, string $format = 'pretty
     $after = $parse(file_get_contents($secondFile));
     $ast = buildDiffAST($before, $after);
 
-    $build = getDiffBuilder($format);
-    $diff = $build($ast);
+    $buildDiff = getDiffBuilder($format);
+    $diff = $buildDiff($ast);
 
     return $diff;
 }
