@@ -11,15 +11,13 @@ function buildDiffAST(array $before, array $after)
 
         $wasAdded = !array_key_exists($name, $before);
         if ($wasAdded) {
-            $ast[] = ['type' => 'added', 'name' => $name, 'before' => null,
-                      'after' => $afterValue, 'children' => []];
+            $ast[] = ['type' => 'added', 'name' => $name, 'after' => $afterValue];
             return $ast;
         }
 
         $wasRemoved = !array_key_exists($name, $after);
         if ($wasRemoved) {
-            $ast[] = ['type' => 'removed', 'name' => $name, 'before' => $beforeValue,
-                      'after' => null, 'children' => []];
+            $ast[] = ['type' => 'removed', 'name' => $name, 'before' => $beforeValue];
             return $ast;
         }
 
@@ -32,13 +30,11 @@ function buildDiffAST(array $before, array $after)
         }
 
         if ($beforeValue === $afterValue) {
-            $ast[] = ['type' => 'unchanged', 'name' => $name,
-                      'before' => $beforeValue, 'after' => $afterValue, 'children' => []];
+            $ast[] = ['type' => 'unchanged', 'name' => $name, 'before' => $beforeValue, 'after' => $afterValue];
             return $ast;
         }
 
-        $ast[] = ['type' => 'changed', 'name' => $name, 'before' => $beforeValue,
-                  'after' => $afterValue, 'children' => []];
+        $ast[] = ['type' => 'changed', 'name' => $name, 'before' => $beforeValue, 'after' => $afterValue];
         return $ast;
     }, []);
 
