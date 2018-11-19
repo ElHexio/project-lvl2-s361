@@ -22,8 +22,8 @@ function format(array $ast, int $level = 0)
                 $diff[] = "{$offset}    {$node['name']}: {$before}";
                 break;
             case 'nested':
-                $value = format($node['children'], $level + 1);
-                $diff[] = "{$offset}    {$node['name']}: {$value}";
+                $children = format($node['children'], $level + 1);
+                $diff[] = "{$offset}    {$node['name']}: {$children}";
                 break;
             case 'changed':
                 $after = prepareValueForDiff($node['after'], $level + 1);
@@ -42,17 +42,19 @@ function format(array $ast, int $level = 0)
 
 function prepareValueForDiff($value, $level)
 {
-    if (is_array($value)) {
-        $offset = str_pad('', $level * 4, ' ');
-        $lines = array_reduce(array_keys($value), function ($lines, $prop) use ($value, $offset, $level) {
-            $preparedValue = prepareValueForDiff($value[$prop], $level + 1);
-            $lines[] = "{$offset}    {$prop}: {$preparedValue}";
-            return $lines;
-        }, ["{"]);
-        $lines[] = "{$offset}}";
+    return is_array($value) ? stringifyArray($value, $level) : stringifyValue($value);
+}
 
-        return implode(PHP_EOL, $lines);
-    }
+function stringifyArray(array $items, $level)
+{
+    $offset = str_pad('', $level * 4, ' ');
+    $properties = array_keys($items);
+    $lines = array_reduce($properties, function ($lines, $prop) use ($items, $offset, $level) {
+        $preparedValue = prepareValueForDiff($items[$prop], $level + 1);
+        $lines[] = "{$offset}    {$prop}: {$preparedValue}";
+        return $lines;
+    }, ["{"]);
+    $lines[] = "{$offset}}";
 
-    return stringifyValue($value);
+    return implode(PHP_EOL, $lines);
 }
